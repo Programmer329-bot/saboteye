@@ -1,0 +1,39 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><link rel="manifest" href="manifest.json"><title>SabotEye Pro</title><style>
+:root{--bg:#072612;--felt:#0d4220;--panel:rgba(0,0,0,.65);--hi:#2ecc71;--low:#e74c3c;--neu:#f1c40f}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:#fff;margin:0;padding:10px;text-align:center;user-select:none}
+.container{max-width:600px;margin:0 auto}.panel{background:var(--panel);padding:10px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+select{padding:6px;background:#2c3e50;color:#fff;border:none;border-radius:4px;font-weight:bold}
+.alert{background:#2c3e50;padding:10px;border-radius:8px;font-weight:bold;margin-bottom:10px;text-transform:uppercase;transition:.3s}
+.active{background:#1e7e43!important;border:2px solid var(--hi);animation:p 1.5s infinite}@keyframes p{0%,100%{opacity:1}50%{opacity:.7}}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:15px}.box{padding:8px;border-radius:6px;font-size:12px}.box span{display:block;font-size:20px;font-weight:bold;margin-top:2px}
+.table{background:var(--felt);border:3px solid #5c4033;border-radius:20px;padding:15px 10px;margin-bottom:15px;box-shadow:inset 0 0 20px #000}
+.row{display:flex;justify-content:center;margin-bottom:25px}.p-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;row-gap:20px}
+.seat{background:rgba(0,0,0,.4);border:1px dashed rgba(255,255,255,.3);border-radius:8px;padding:8px 4px;cursor:pointer;min-height:55px;display:flex;flex-direction:column;justify-content:space-between}
+.selected{border:2px solid var(--neu);background:rgba(241,196,15,.1)}
+.kb{display:none;background:var(--panel);padding:12px;border-radius:10px}.k-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+button{padding:14px 0;font-size:15px;font-weight:bold;border:none;border-radius:6px;color:#fff;cursor:pointer}
+.c-row{display:flex;justify-content:space-between;margin-top:15px;gap:10px}.btn-act{flex:1;padding:12px;font-size:14px;background:#34495e}
+</style></head><body><div class="container">
+<div class="panel"><span>Mazzi: <select id="sel" onchange="reset()"><option value="1">1</option><option value="2">2</option><option value="4">4</option><option value="6" selected>6</option><option value="8">8</option></select></span><div>Rimaste: <strong id="rem">0</strong></div></div>
+<div id="al" class="alert">Attesa Dati...</div>
+<div class="grid"><div class="box" style="background:var(--low)">Basse (2-6)<span id="pL">0%</span></div><div class="box" style="background:#7f8c8d">Neutre (7-9)<span id="pN">0%</span></div><div class="box" style="background:var(--hi)">Alte (10-A)<span id="pH">0%</span></div></div>
+<div class="table"><div class="row"><div class="seat" id="s-dealer" style="width:120px;" onclick="sel('dealer')"><div>Banco</div><div id="c-dealer" style="color:var(--neu)">-</div></div></div>
+<div class="p-row"><div class="seat" id="s-p1" onclick="sel('p1')"><div>Giox 1</div><div id="c-p1" style="color:var(--neu)">-</div></div><div class="seat" id="s-p2" onclick="sel('p2')"><div>Giox 2</div><div id="c-p2" style="color:var(--neu)">-</div></div><div class="seat" id="s-p3" onclick="sel('p3')"><div>Giox 3</div><div id="c-p3" style="color:var(--neu)">-</div></div><div class="seat" id="s-p4" onclick="sel('p4')"><div>Giox 4</div><div id="c-p4" style="color:var(--neu)">-</div></div><div class="seat" id="s-p5" onclick="sel('p5')"><div>Giox 5</div><div id="c-p5" style="color:var(--neu)">-</div></div><div class="seat" id="s-p6" onclick="sel('p6')"><div>Giox 6</div><div id="c-p6" style="color:var(--neu)">-</div></div></div></div>
+<div id="kb" class="kb"><div>Aggiungi a: <strong id="lbl" style="color:var(--neu)"></strong></div><div class="k-grid">
+<button style="background:var(--hi)" onclick="add('A')">A</button><button style="background:var(--hi)" onclick="add('10')">10-K</button><button style="background:#d35400" onclick="add('9')">9</button><button style="background:#d35400" onclick="add('8')">8</button><button style="background:#d35400" onclick="add('7')">7</button>
+<button style="background:var(--low)" onclick="add('6')">6</button><button style="background:var(--low)" onclick="add('5')">5</button><button style="background:var(--low)" onclick="add('4')">4</button><button style="background:var(--low)" onclick="add('3')">3</button><button style="background:var(--low)" onclick="add('2')">2</button>
+</div></div>
+<div class="c-row"><button class="btn-act" style="background:#d35400" onclick="del()">Svuota Posto</button><button class="btn-act" style="background:#c0392b" onclick="cls()">Pulisci Tavolo</button><button class="btn-act" onclick="reset()">Nuovo Sabot</button></div></div>
+<script>
+let d={},c=null,st={dealer:[],p1:[],p2:[],p3:[],p4:[],p5:[],p6:[]};
+function reset(){let n=parseInt(document.getElementById('sel').value);d={'A':4*n,'10':16*n,'9':4*n,'8':4*n,'7':4*n,'6':4*n,'5':4*n,'4':4*n,'3':4*n,'2':4*n};cls()}
+function cls(){st={dealer:[],p1:[],p2:[],p3:[],p4:[],p5:[],p6:[]};c=null;document.getElementById('kb').style.display='none';document.querySelectorAll('.seat').forEach(s=>s.classList.remove('selected'));up()}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+function sel(id){document.querySelectorAll('.seat').forEach(s=>s.classList.remove('selected'));c=id;document.getElementById('s-'+id).classList.add('selected');document.getElementById('lbl').innerText=id==='dealer'?'Banco':'Giox '+id.replace('p','');document.getElementById('kb').style.display='block'}
+function add(v){if(!c||d[v]<=0)return;d[v]--;st[c].push(v);up()}
+function del(){if(!c)return;st[c].forEach(v=>{d[v]++});st[c]=[];up()}
+function up(){let t=0;for(let k in d)t+=d[k];document.getElementById('rem').innerText=t;for(let s in st){let txt=st[s].join(' ');document.getElementById('c-'+s).innerText=txt===""?"-":txt}if(t===0)return;
+let l=d['2']+d['3']+d['4']+d['5']+d['6'],n=d['7']+d['8']+d['9'],h=d['10']+d['A'],p=(h/t)*100;
+document.getElementById('pL').innerText=((l/t)*100).toFixed(1)+"%";document.getElementById('pN').innerText=((n/t)*100).toFixed(1)+"%";document.getElementById('pH').innerText=p.toFixed(1)+"%";
+let a=document.getElementById('al');if(p>40.5){a.innerText="🔥 PUNTA ALTO 🔥";a.classList.add('active')}else{a.innerText="Puntata Minima";a.classList.remove('active')}}reset();
+</script></body></html>

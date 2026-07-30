@@ -1,0 +1,26 @@
+# Sottoprocesso di generazione dell'immagine icona
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
+fig, ax = plt.subplots(figsize=(6, 6), dpi=85)
+fig.patch.set_facecolor('#072612')
+ax.set_facecolor('#072612')
+
+# Sfondo scuro ed elegante
+rect = patches.RoundedRectangle((0.05, 0.05), 0.9, 0.9, linewidth=0, edgecolor='none', facecolor='#0b1f0c', transform=ax.transAxes)
+ax.add_patch(rect)
+
+# Cerchio dorato centrale
+circle = patches.Circle((0.5, 0.5), 0.35, linewidth=4, edgecolor='#f1c40f', facecolor='none', transform=ax.transAxes)
+ax.add_patch(circle)
+
+# Testo stilizzato dell'App
+plt.text(0.5, 0.53, 'S', fontsize=120, weight='bold', color='#ffffff', ha='center', va='center', fontname='sans-serif')
+plt.text(0.5, 0.28, 'PRO', fontsize=24, weight='bold', color='#2ecc71', ha='center', va='center', fontname='sans-serif', letterspacing=4)
+
+ax.set_xlim(0, 1)
+ax.set_ylim(0, 1)
+plt.axis('off')
+plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+plt.savefig('icon.png', facecolor=fig.get_facecolor(), edgecolor='none', pad_inches=0)
+plt.close()
