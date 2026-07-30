@@ -1,39 +1,566 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><link rel="manifest" href="manifest.json"><title>SabotEye Pro</title><style>
-:root{--bg:#072612;--felt:#0d4220;--panel:rgba(0,0,0,.65);--hi:#2ecc71;--low:#e74c3c;--neu:#f1c40f}
-body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:#fff;margin:0;padding:10px;text-align:center;user-select:none}
-.container{max-width:600px;margin:0 auto}.panel{background:var(--panel);padding:10px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-select{padding:6px;background:#2c3e50;color:#fff;border:none;border-radius:4px;font-weight:bold}
-.alert{background:#2c3e50;padding:10px;border-radius:8px;font-weight:bold;margin-bottom:10px;text-transform:uppercase;transition:.3s}
-.active{background:#1e7e43!important;border:2px solid var(--hi);animation:p 1.5s infinite}@keyframes p{0%,100%{opacity:1}50%{opacity:.7}}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:15px}.box{padding:8px;border-radius:6px;font-size:12px}.box span{display:block;font-size:20px;font-weight:bold;margin-top:2px}
-.table{background:var(--felt);border:3px solid #5c4033;border-radius:20px;padding:15px 10px;margin-bottom:15px;box-shadow:inset 0 0 20px #000}
-.row{display:flex;justify-content:center;margin-bottom:25px}.p-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;row-gap:20px}
-.seat{background:rgba(0,0,0,.4);border:1px dashed rgba(255,255,255,.3);border-radius:8px;padding:8px 4px;cursor:pointer;min-height:55px;display:flex;flex-direction:column;justify-content:space-between}
-.selected{border:2px solid var(--neu);background:rgba(241,196,15,.1)}
-.kb{display:none;background:var(--panel);padding:12px;border-radius:10px}.k-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
-button{padding:14px 0;font-size:15px;font-weight:bold;border:none;border-radius:6px;color:#fff;cursor:pointer}
-.c-row{display:flex;justify-content:space-between;margin-top:15px;gap:10px}.btn-act{flex:1;padding:12px;font-size:14px;background:#34495e}
-</style></head><body><div class="container">
-<div class="panel"><span>Mazzi: <select id="sel" onchange="reset()"><option value="1">1</option><option value="2">2</option><option value="4">4</option><option value="6" selected>6</option><option value="8">8</option></select></span><div>Rimaste: <strong id="rem">0</strong></div></div>
-<div id="al" class="alert">Attesa Dati...</div>
-<div class="grid"><div class="box" style="background:var(--low)">Basse (2-6)<span id="pL">0%</span></div><div class="box" style="background:#7f8c8d">Neutre (7-9)<span id="pN">0%</span></div><div class="box" style="background:var(--hi)">Alte (10-A)<span id="pH">0%</span></div></div>
-<div class="table"><div class="row"><div class="seat" id="s-dealer" style="width:120px;" onclick="sel('dealer')"><div>Banco</div><div id="c-dealer" style="color:var(--neu)">-</div></div></div>
-<div class="p-row"><div class="seat" id="s-p1" onclick="sel('p1')"><div>Giox 1</div><div id="c-p1" style="color:var(--neu)">-</div></div><div class="seat" id="s-p2" onclick="sel('p2')"><div>Giox 2</div><div id="c-p2" style="color:var(--neu)">-</div></div><div class="seat" id="s-p3" onclick="sel('p3')"><div>Giox 3</div><div id="c-p3" style="color:var(--neu)">-</div></div><div class="seat" id="s-p4" onclick="sel('p4')"><div>Giox 4</div><div id="c-p4" style="color:var(--neu)">-</div></div><div class="seat" id="s-p5" onclick="sel('p5')"><div>Giox 5</div><div id="c-p5" style="color:var(--neu)">-</div></div><div class="seat" id="s-p6" onclick="sel('p6')"><div>Giox 6</div><div id="c-p6" style="color:var(--neu)">-</div></div></div></div>
-<div id="kb" class="kb"><div>Aggiungi a: <strong id="lbl" style="color:var(--neu)"></strong></div><div class="k-grid">
-<button style="background:var(--hi)" onclick="add('A')">A</button><button style="background:var(--hi)" onclick="add('10')">10-K</button><button style="background:#d35400" onclick="add('9')">9</button><button style="background:#d35400" onclick="add('8')">8</button><button style="background:#d35400" onclick="add('7')">7</button>
-<button style="background:var(--low)" onclick="add('6')">6</button><button style="background:var(--low)" onclick="add('5')">5</button><button style="background:var(--low)" onclick="add('4')">4</button><button style="background:var(--low)" onclick="add('3')">3</button><button style="background:var(--low)" onclick="add('2')">2</button>
-</div></div>
-<div class="c-row"><button class="btn-act" style="background:#d35400" onclick="del()">Svuota Posto</button><button class="btn-act" style="background:#c0392b" onclick="cls()">Pulisci Tavolo</button><button class="btn-act" onclick="reset()">Nuovo Sabot</button></div></div>
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>SabotEye Pro - Advanced Manager</title>
+    <style>
+        :root {
+            --bg: #072612;
+            --felt: #0d4220;
+            --panel: rgba(0, 0, 0, .65);
+            --hi: #2ecc71;
+            --low: #e74c3c;
+            --neu: #f1c40f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: #fff;
+            margin: 0;
+            padding: 10px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--panel);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        select, input {
+            padding: 6px;
+            background: #2c3e50;
+            color: #fff;
+            border: 1px solid #455a64;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .alert {
+            background: #2c3e50;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .box {
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .box span {
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        /* Grafico Carte Rimaste */
+        .deck-chart {
+            background: var(--panel);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #bdc3c7;
+            margin-bottom: 8px;
+        }
+
+        .bars-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 60px;
+            gap: 4px;
+        }
+
+        .bar-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .bar {
+            width: 100%;
+            background: #3498db;
+            border-radius: 2px 2px 0 0;
+            transition: height 0.3s ease;
+        }
+
+        .bar-lbl {
+            font-size: 9px;
+            margin-top: 3px;
+        }
+
+        .bar-val {
+            font-size: 9px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .table {
+            background: var(--felt);
+            border: 3px solid #5c4033;
+            border-radius: 20px;
+            padding: 15px 10px;
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 20px #000;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .p-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            row-gap: 20px;
+        }
+
+        .seat {
+            background: rgba(0,0,0,.4);
+            border: 1px dashed rgba(255,255,255,.3);
+            border-radius: 8px;
+            padding: 8px 4px;
+            cursor: pointer;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .selected {
+            border: 2px solid var(--neu);
+            background: rgba(241,196,15,.1);
+        }
+
+        .kb {
+            display: none;
+            background: var(--panel);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .k-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        button {
+            padding: 12px 0;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button:active {
+            opacity: 0.7;
+        }
+
+        .c-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            gap: 8px;
+        }
+
+        .btn-act {
+            flex: 1;
+            padding: 10px 4px;
+            font-size: 12px;
+            background: #34495e;
+        }
+
+        /* Gestione Cassa */
+        .bankroll-section {
+            background: var(--panel);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .bankroll-section h3 {
+            margin-top: 0;
+            text-align: center;
+            color: var(--neu);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .form-group label {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .form-group input {
+            flex: 1;
+            width: 80px;
+        }
+
+        .stats-summary {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,.05);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .history-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,.05);
+            padding: 6px 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .profit-pos { color: var(--hi); }
+        .profit-neg { color: var(--low); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="panel">
+        <span>Mazzi: 
+            <select id="sel" onchange="resetSabot()">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+            </select>
+        </span>
+        <div>Carte Rimaste: <strong id="rem">0</strong></div>
+    </div>
+
+    <div id="al" class="alert">Tracciamento Attivo</div>
+
+    <div class="grid">
+        <div class="box" style="background:var(--low)">Basse (2-6)<span id="pL">0%</span></div>
+        <div class="box" style="background:#7f8c8d">Neutre (7-9)<span id="pN">0%</span></div>
+        <div class="box" style="background:var(--hi)">Alte (10-A)<span id="pH">0%</span></div>
+    </div>
+
+    <div class="deck-chart">
+        <div class="chart-title">Distribuzione Carte Rimaste nel Sabot</div>
+        <div class="bars-container" id="chartBars">
+            </div>
+    </div>
+
+    <div class="table">
+        <div class="row">
+            <div class="seat" id="s-dealer" style="width:140px;" onclick="selectSeat('dealer')">
+                <div>Banco</div>
+                <div id="c-dealer" style="color:var(--neu)">-</div>
+            </div>
+        </div>
+        <div class="p-row">
+            <div class="seat" id="s-p1" onclick="selectSeat('p1')"><div>Giox 1</div><div id="c-p1" style="color:var(--neu)">-</div></div>
+            <div class="seat" id="s-p2" onclick="selectSeat('p2')"><div>Giox 2</div><div id="c-p2" style="color:var(--neu)">-</div></div>
+            <div class="seat" id="s-p3" onclick="selectSeat('p3')"><div>Giox 3</div><div id="c-p3" style="color:var(--neu)">-</div></div>
+            <div class="seat" id="s-p4" onclick="selectSeat('p4')"><div>Giox 4</div><div id="c-p4" style="color:var(--neu)">-</div></div>
+            <div class="seat" id="s-p5" onclick="selectSeat('p5')"><div>Giox 5</div><div id="c-p5" style="color:var(--neu)">-</div></div>
+            <div class="seat" id="s-p6" onclick="selectSeat('p6')"><div>Giox 6</div><div id="c-p6" style="color:var(--neu)">-</div></div>
+        </div>
+    </div>
+
+    <div id="kb" class="kb">
+        <div>Aggiungi a: <strong id="lbl" style="color:var(--neu)"></strong></div>
+        <div class="k-grid">
+            <button style="background:var(--hi)" onclick="addCard('A')">A</button>
+            <button style="background:var(--hi)" onclick="addCard('10')">10-K</button>
+            <button style="background:#d35400" onclick="addCard('9')">9</button>
+            <button style="background:#d35400" onclick="addCard('8')">8</button>
+            <button style="background:#d35400" onclick="addCard('7')">7</button>
+            <button style="background:var(--low)" onclick="addCard('6')">6</button>
+            <button style="background:var(--low)" onclick="addCard('5')">5</button>
+            <button style="background:var(--low)" onclick="addCard('4')">4</button>
+            <button style="background:var(--low)" onclick="addCard('3')">3</button>
+            <button style="background:var(--low)" onclick="addCard('2')">2</button>
+        </div>
+    </div>
+
+    <div class="c-row">
+        <button class="btn-act" style="background:#e67e22" onclick="undoCard()">Annulla Carta</button>
+        <button class="btn-act" style="background:#d35400" onclick="deleteSeat()">Svuota Posto</button>
+        <button class="btn-act" style="background:#c0392b" onclick="clearTable()">Pulisci Tavolo</button>
+        <button class="btn-act" onclick="resetSabot()">Nuovo Sabot</button>
+    </div>
+
+    <div class="bankroll-section">
+        <h3>💰 Gestione Cassa e Storico Permanenti</h3>
+        <div class="form-group">
+            <label>Cassa Iniziale (€):</label>
+            <input type="number" id="cashIn" placeholder="100">
+        </div>
+        <div class="form-group">
+            <label>Cassa Finale (€):</label>
+            <input type="number" id="cashOut" placeholder="150">
+        </div>
+        <button style="width:100%; background:#27ae60; margin-bottom:10px;" onclick="saveSession()">Salva Sessione in Memoria</button>
+
+        <div class="stats-summary">
+            <div>Guadagno Netto: <span id="netProfitTotal" class="profit-pos">€0.00</span></div>
+            <div>ROI: <span id="roiTotal">0.0%</span></div>
+        </div>
+
+        <div style="font-size:12px; text-transform:uppercase; color:#bdc3c7;">Storico Sessioni Salvate:</div>
+        <ul id="historyList" class="history-list"></ul>
+        
+        <div class="c-row">
+            <button class="btn-act" style="background:#2980b9" onclick="exportCSV()">Esporta CSV</button>
+            <button class="btn-act" style="background:#7f8c8d" onclick="clearHistory()">Cancella Storico</button>
+        </div>
+    </div>
+</div>
+
 <script>
-let d={},c=null,st={dealer:[],p1:[],p2:[],p3:[],p4:[],p5:[],p6:[]};
-function reset(){let n=parseInt(document.getElementById('sel').value);d={'A':4*n,'10':16*n,'9':4*n,'8':4*n,'7':4*n,'6':4*n,'5':4*n,'4':4*n,'3':4*n,'2':4*n};cls()}
-function cls(){st={dealer:[],p1:[],p2:[],p3:[],p4:[],p5:[],p6:[]};c=null;document.getElementById('kb').style.display='none';document.querySelectorAll('.seat').forEach(s=>s.classList.remove('selected'));up()}
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
-function sel(id){document.querySelectorAll('.seat').forEach(s=>s.classList.remove('selected'));c=id;document.getElementById('s-'+id).classList.add('selected');document.getElementById('lbl').innerText=id==='dealer'?'Banco':'Giox '+id.replace('p','');document.getElementById('kb').style.display='block'}
-function add(v){if(!c||d[v]<=0)return;d[v]--;st[c].push(v);up()}
-function del(){if(!c)return;st[c].forEach(v=>{d[v]++});st[c]=[];up()}
-function up(){let t=0;for(let k in d)t+=d[k];document.getElementById('rem').innerText=t;for(let s in st){let txt=st[s].join(' ');document.getElementById('c-'+s).innerText=txt===""?"-":txt}if(t===0)return;
-let l=d['2']+d['3']+d['4']+d['5']+d['6'],n=d['7']+d['8']+d['9'],h=d['10']+d['A'],p=(h/t)*100;
-document.getElementById('pL').innerText=((l/t)*100).toFixed(1)+"%";document.getElementById('pN').innerText=((n/t)*100).toFixed(1)+"%";document.getElementById('pH').innerText=p.toFixed(1)+"%";
-let a=document.getElementById('al');if(p>40.5){a.innerText="🔥 PUNTA ALTO 🔥";a.classList.add('active')}else{a.innerText="Puntata Minima";a.classList.remove('active')}}reset();
-</script></body></html>
+let deck = {};
+let maxDeck = {};
+let currentSeat = null;
+let seatsState = { dealer: [], p1: [], p2: [], p3: [], p4: [], p5: [], p6: [] };
+
+function triggerHaptic() {
+    if (navigator.vibrate) navigator.vibrate(20);
+}
+
+function resetSabot() {
+    triggerHaptic();
+    let numDecks = parseInt(document.getElementById('sel').value);
+    deck = {
+        '2': 4*numDecks, '3': 4*numDecks, '4': 4*numDecks, '5': 4*numDecks, '6': 4*numDecks,
+        '7': 4*numDecks, '8': 4*numDecks, '9': 4*numDecks, '10': 16*numDecks, 'A': 4*numDecks
+    };
+    maxDeck = JSON.parse(JSON.stringify(deck));
+    clearTable();
+}
+
+function clearTable() {
+    seatsState = { dealer: [], p1: [], p2: [], p3: [], p4: [], p5: [], p6: [] };
+    currentSeat = null;
+    document.getElementById('kb').style.display = 'none';
+    document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+    updateUI();
+}
+
+function selectSeat(id) {
+    triggerHaptic();
+    document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+    currentSeat = id;
+    document.getElementById('s-' + id).classList.add('selected');
+    document.getElementById('lbl').innerText = id === 'dealer' ? 'Banco' : 'Giox ' + id.replace('p', '');
+    document.getElementById('kb').style.display = 'block';
+}
+
+function addCard(value) {
+    if (!currentSeat || deck[value] <= 0) return;
+    triggerHaptic();
+    deck[value]--;
+    seatsState[currentSeat].push(value);
+    updateUI();
+}
+
+function undoCard() {
+    if (!currentSeat || seatsState[currentSeat].length === 0) return;
+    triggerHaptic();
+    let lastCard = seatsState[currentSeat].pop();
+    deck[lastCard]++;
+    updateUI();
+}
+
+function deleteSeat() {
+    if (!currentSeat) return;
+    triggerHaptic();
+    seatsState[currentSeat].forEach(card => { deck[card]++; });
+    seatsState[currentSeat] = [];
+    updateUI();
+}
+
+function updateUI() {
+    let totalRemaining = 0;
+    for (let k in deck) totalRemaining += deck[k];
+    document.getElementById('rem').innerText = totalRemaining;
+
+    for (let s in seatsState) {
+        let txt = seatsState[s].join(' ');
+        document.getElementById('c-' + s).innerText = txt === "" ? "-" : txt;
+    }
+
+    if (totalRemaining > 0) {
+        let low = deck['2'] + deck['3'] + deck['4'] + deck['5'] + deck['6'];
+        let neu = deck['7'] + deck['8'] + deck['9'];
+        let high = deck['10'] + deck['A'];
+
+        document.getElementById('pL').innerText = ((low / totalRemaining) * 100).toFixed(1) + "%";
+        document.getElementById('pN').innerText = ((neu / totalRemaining) * 100).toFixed(1) + "%";
+        document.getElementById('pH').innerText = ((high / totalRemaining) * 100).toFixed(1) + "%";
+    }
+
+    renderChart();
+}
+
+function renderChart() {
+    let container = document.getElementById('chartBars');
+    container.innerHTML = '';
+    let keys = ['2','3','4','5','6','7','8','9','10','A'];
+
+    keys.forEach(key => {
+        let count = deck[key];
+        let max = maxDeck[key];
+        let perc = (count / max) * 100;
+
+        let col = document.createElement('div');
+        col.className = 'bar-col';
+        col.innerHTML = `
+            <div class="bar-val">${count}</div>
+            <div class="bar" style="height: ${perc}%;"></div>
+            <div class="bar-lbl">${key}</div>
+        `;
+        container.appendChild(col);
+    });
+}
+
+// --- CASSA E STORICO PERMANENTI (LOCAL STORAGE) ---
+function saveSession() {
+    let cashIn = parseFloat(document.getElementById('cashIn').value);
+    let cashOut = parseFloat(document.getElementById('cashOut').value);
+
+    if (isNaN(cashIn) || isNaN(cashOut)) {
+        alert("Inserisci cassa iniziale e finale.");
+        return;
+    }
+
+    let profit = cashOut - cashIn;
+    let dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
+
+    let history = JSON.parse(localStorage.getItem('sabotEyeHistory') || '[]');
+    history.push({ date: dateStr, in: cashIn, out: cashOut, profit: profit });
+    localStorage.setItem('sabotEyeHistory', JSON.stringify(history));
+
+    document.getElementById('cashIn').value = '';
+    document.getElementById('cashOut').value = '';
+
+    renderHistory();
+}
+
+function renderHistory() {
+    let history = JSON.parse(localStorage.getItem('sabotEyeHistory') || '[]');
+    let listEl = document.getElementById('historyList');
+    listEl.innerHTML = '';
+
+    let netTotal = 0;
+    let totalIn = 0;
+
+    history.slice().reverse().forEach(item => {
+        netTotal += item.profit;
+        totalIn += item.in;
+        let li = document.createElement('li');
+        li.className = 'history-item';
+        let profitClass = item.profit >= 0 ? 'profit-pos' : 'profit-neg';
+        let sign = item.profit >= 0 ? '+' : '';
+        li.innerHTML = `<span>${item.date} (In: €${item.in} | Out: €${item.out})</span> <span class="${profitClass}">${sign}€${item.profit.toFixed(2)}</span>`;
+        listEl.appendChild(li);
+    });
+
+    let totalEl = document.getElementById('netProfitTotal');
+    totalEl.innerText = (netTotal >= 0 ? '+€' : '-€') + Math.abs(netTotal).toFixed(2);
+    totalEl.className = netTotal >= 0 ? 'profit-pos' : 'profit-neg';
+
+    let roi = totalIn > 0 ? (netTotal / totalIn) * 100 : 0;
+    let roiEl = document.getElementById('roiTotal');
+    roiEl.innerText = roi.toFixed(1) + "%";
+    roiEl.className = roi >= 0 ? 'profit-pos' : 'profit-neg';
+}
+
+function exportCSV() {
+    let history = JSON.parse(localStorage.getItem('sabotEyeHistory') || '[]');
+    if (history.length === 0) {
+        alert("Nessun dato salvato da esportare.");
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,Data,Cassa In,Cassa Out,Profitto\n";
+    history.forEach(row => {
+        csvContent += `${row.date},${row.in},${row.out},${row.profit}\n`;
+    });
+
+    let encodedUri = encodeURI(csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "storico_cassa.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function clearHistory() {
+    if (confirm("Cancellare definitivamente l'intero storico memorizzato sul dispositivo?")) {
+        localStorage.removeItem('sabotEyeHistory');
+        renderHistory();
+    }
+}
+
+// Inizializzazione al caricamento
+resetSabot();
+renderHistory();
+</script>
+</body>
+</html>
