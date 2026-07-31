@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>SabotEye Old Money HUD</title>
+    <title>SabotEye Old Money HUD Pro</title>
     <style>
         :root {
             --bg: #121814;          /* Verde bosco scuro e profondo */
@@ -32,6 +32,27 @@
         .container {
             max-width: 500px;
             margin: 0 auto;
+        }
+
+        /* Branding / Custom Header */
+        .brand-header {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .brand-gold {
+            color: var(--neu);
+            font-weight: 700;
+        }
+
+        .brand-vip {
+            color: var(--hi);
+            font-weight: 700;
         }
 
         /* Top HUD Bar */
@@ -108,6 +129,108 @@
             font-weight: 700;
         }
 
+        /* Card Probability Matrix Section */
+        .card-matrix {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .matrix-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #b0c4b8;
+            margin-bottom: 6px;
+        }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+        }
+
+        .matrix-item {
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .matrix-card-val {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--neu);
+        }
+
+        .matrix-card-prob {
+            font-size: 10px;
+            color: var(--accent);
+            display: block;
+        }
+
+        .matrix-card-count {
+            font-size: 8px;
+            color: #8fa397;
+            display: block;
+        }
+
+        /* Remaining Cards Chart Bars */
+        .deck-chart {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .chart-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #b0c4b8;
+            margin-bottom: 6px;
+        }
+
+        .bars-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 50px;
+            gap: 4px;
+        }
+
+        .bar-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .bar {
+            width: 100%;
+            background: var(--hi);
+            border-radius: 2px 2px 0 0;
+            transition: height 0.3s ease;
+        }
+
+        .bar-lbl {
+            font-size: 9px;
+            margin-top: 3px;
+            color: #b0c4b8;
+        }
+
+        .bar-val {
+            font-size: 8px;
+            color: var(--neu);
+            margin-bottom: 2px;
+        }
+
         /* Table Layout */
         .table {
             background: radial-gradient(circle, #1a2e23 0%, var(--bg) 100%);
@@ -135,7 +258,7 @@
             border-radius: 6px;
             padding: 8px 4px;
             cursor: pointer;
-            min-height: 52px;
+            min-height: 58px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -276,14 +399,20 @@
 <body>
 
 <div class="container">
+    <div class="brand-header">
+        <span class="brand-gold">Limited Edition for Fabio Fruch</span>
+        <span>•</span>
+        <span class="brand-vip">VIP Account</span>
+    </div>
+
     <div class="hud-top">
         <div class="hud-card">
             Mazzi Sabot
             <select id="sel" onchange="resetSabot()">
-                <option value="1">1</option>
+                <option value="1" selected>1</option>
                 <option value="2">2</option>
                 <option value="4">4</option>
-                <option value="6" selected>6</option>
+                <option value="6">6</option>
                 <option value="8">8</option>
             </select>
         </div>
@@ -299,6 +428,16 @@
         <div class="micro-box" style="border-color: var(--low);">Basse (2-6)<span id="pL" style="color:var(--low)">0%</span></div>
         <div class="micro-box" style="border-color: #555;">Neutre (7-9)<span id="pN" style="color:#b0c4b8">0%</span></div>
         <div class="micro-box" style="border-color: var(--hi);">Alte (10-A)<span id="pH" style="color:var(--hi)">0%</span></div>
+    </div>
+
+    <div class="card-matrix">
+        <div class="matrix-title">Probabilità Esatta per Singola Carta</div>
+        <div class="matrix-grid" id="matrixGrid"></div>
+    </div>
+
+    <div class="deck-chart">
+        <div class="chart-title">Distribuzione Grafica Sabot</div>
+        <div class="bars-container" id="chartBars"></div>
     </div>
 
     <div class="table">
@@ -472,6 +611,9 @@ function updateUI() {
         document.getElementById('pH').innerText = ((high / totalRemaining) * 100).toFixed(0) + "%";
     }
 
+    renderMatrix(totalRemaining);
+    renderChart();
+
     for (let s in seatsState) {
         let rawHand = seatsState[s];
         if (rawHand.length === 0) {
@@ -499,12 +641,52 @@ function updateUI() {
                 htmlContent += `<br><span style="color:${scColor}; font-size:11px;">[${score}]</span>`;
                 if (score > 11 && score < 21) {
                     let bColor = bustProb > 50 ? 'var(--low)' : 'var(--neu)';
-                    htmlContent += ` <span style="color:${bColor}; font-size:9px;">${bustProb.toFixed(0)}%</span>`;
+                    htmlContent += ` <span style="color:${bColor}; font-size:9px;">Sballo: ${bustProb.toFixed(0)}%</span>`;
                 }
             }
         });
         document.getElementById('c-' + s).innerHTML = htmlContent;
     }
+}
+
+function renderMatrix(totalRemaining) {
+    let grid = document.getElementById('matrixGrid');
+    grid.innerHTML = '';
+    let keys = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'A'];
+
+    keys.forEach(k => {
+        let count = deck[k];
+        let prob = totalRemaining > 0 ? (count / totalRemaining) * 100 : 0;
+        let div = document.createElement('div');
+        div.className = 'matrix-item';
+        div.innerHTML = `
+            <div class="matrix-card-val">${k}</div>
+            <span class="matrix-card-prob">${prob.toFixed(1)}%</span>
+            <span class="matrix-card-count">(${count})</span>
+        `;
+        grid.appendChild(div);
+    });
+}
+
+function renderChart() {
+    let container = document.getElementById('chartBars');
+    container.innerHTML = '';
+    let keys = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'A'];
+
+    keys.forEach(key => {
+        let count = deck[key];
+        let max = maxDeck[key];
+        let perc = max > 0 ? (count / max) * 100 : 0;
+
+        let col = document.createElement('div');
+        col.className = 'bar-col';
+        col.innerHTML = `
+            <div class="bar-val">${count}</div>
+            <div class="bar" style="height: ${perc}%;"></div>
+            <div class="bar-lbl">${key}</div>
+        `;
+        container.appendChild(col);
+    });
 }
 
 function saveSession() {
