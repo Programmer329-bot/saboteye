@@ -298,10 +298,19 @@
         <div class="box" style="background:var(--hi)">Alte (10-A)<span id="pH">0%</span></div>
     </div>
 
+    <div class="panel" style="flex-direction: column; text-align: left; background: #1a252f;">
+        <div style="font-size: 13px; color: var(--neu); margin-bottom: 10px; text-align: center; text-transform: uppercase;">📊 Probabilità e Rischio Matematico</div>
+        
+        <div style="margin-bottom: 8px; font-size: 11px;">
+            <div style="color: #bdc3c7; margin-bottom: 4px;">Probabilità Prossima Carta Uscente:</div>
+            <div id="nextCardProbs" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; text-align: center;">
+                </div>
+        </div>
+    </div>
+
     <div class="deck-chart">
         <div class="chart-title">Distribuzione Carte Rimaste nel Sabot</div>
-        <div class="bars-container" id="chartBars">
-            </div>
+        <div class="bars-container" id="chartBars"></div>
     </div>
 
     <div class="table">
@@ -335,10 +344,11 @@
             <button style="background:var(--low)" onclick="addCard('3')">3</button>
             <button style="background:var(--low)" onclick="addCard('2')">2</button>
         </div>
+        <button style="background:#8e44ad; width:100%; margin-top:10px; padding:8px 0; font-size:12px;" onclick="splitHand()">➗ Dividi Mano (Split)</button>
     </div>
 
     <div class="c-row">
-        <button class="btn-act" style="background:#e67e22" onclick="undoCard()">Annulla Carta</button>
+        <button class="btn-act" style="background:#e67e22" onclick="undoCard()">Annulla</button>
         <button class="btn-act" style="background:#d35400" onclick="deleteSeat()">Svuota Posto</button>
         <button class="btn-act" style="background:#c0392b" onclick="clearTable()">Pulisci Tavolo</button>
         <button class="btn-act" onclick="resetSabot()">Nuovo Sabot</button>
@@ -417,31 +427,78 @@ function addCard(value) {
     updateUI();
 }
 
+function splitHand() {
+    if (!currentSeat || seatsState[currentSeat].length === 0) return;
+    triggerHaptic();
+    seatsState[currentSeat].push('SPLIT');
+    updateUI();
+}
+
 function undoCard() {
     if (!currentSeat || seatsState[currentSeat].length === 0) return;
     triggerHaptic();
-    let lastCard = seatsState[currentSeat].pop();
-    deck[lastCard]++;
+    let lastItem = seatsState[currentSeat].pop();
+    if (lastItem !== 'SPLIT') {
+        deck[lastItem]++;
+    }
     updateUI();
 }
 
 function deleteSeat() {
     if (!currentSeat) return;
     triggerHaptic();
-    seatsState[currentSeat].forEach(card => { deck[card]++; });
+    seatsState[currentSeat].forEach(item => { 
+        if (item !== 'SPLIT') deck[item]++; 
+    });
     seatsState[currentSeat] = [];
     updateUI();
+}
+
+// Funzioni di calcolo matematico esatto
+function calculateScore(hand) {
+    let score = 0;
+    let aces = 0;
+    
+    for (let card of hand) {
+        if (card === 'A') {
+            aces++;
+            score += 11;
+        } else if (card === '10') {
+            score += 10;
+        } else {
+            score += parseInt(card);
+        }
+    }
+    
+    while (score > 21 && aces > 0) {
+        score -= 10;
+        aces--;
+    }
+    return score;
+}
+
+function getBustProbability(score, currentDeck, totalRemaining) {
+    if (score >= 21) return 100;
+    if (score <= 11) return 0;
+    
+    let maxSafeCardValue = 21 - score;
+    let safeCardsCount = 0;
+    
+    for (let val in currentDeck) {
+        let numericVal = (val === 'A') ? 1 : (val === '10' ? 10 : parseInt(val));
+        if (numericVal <= maxSafeCardValue) {
+            safeCardsCount += currentDeck[val];
+        }
+    }
+    
+    let bustCardsCount = totalRemaining - safeCardsCount;
+    return totalRemaining > 0 ? (bustCardsCount / totalRemaining) * 100 : 0;
 }
 
 function updateUI() {
     let totalRemaining = 0;
     for (let k in deck) totalRemaining += deck[k];
     document.getElementById('rem').innerText = totalRemaining;
-
-    for (let s in seatsState) {
-        let txt = seatsState[s].join(' ');
-        document.getElementById('c-' + s).innerText = txt === "" ? "-" : txt;
-    }
 
     if (totalRemaining > 0) {
         let low = deck['2'] + deck['3'] + deck['4'] + deck['5'] + deck['6'];
@@ -451,6 +508,67 @@ function updateUI() {
         document.getElementById('pL').innerText = ((low / totalRemaining) * 100).toFixed(1) + "%";
         document.getElementById('pN').innerText = ((neu / totalRemaining) * 100).toFixed(1) + "%";
         document.getElementById('pH').innerText = ((high / totalRemaining) * 100).toFixed(1) + "%";
+
+        // Probabilità esatta prossima carta
+        let probsHtml = '';
+        let keys = ['2','3','4','5','6','7','8','9','10','A'];
+        keys.forEach(key => {
+            let p = ((deck[key] / totalRemaining) * 100).toFixed(1);
+            let color = p > 10 ? 'var(--hi)' : '#fff';
+            probsHtml += `<div style="background: rgba(255,255,255,0.1); padding: 4px; border-radius: 4px;">
+                            <span style="display:block; font-weight:bold;">${key}</span>
+                            <span style="color: ${color};">${p}%</span>
+                          </div>`;
+        });
+        document.getElementById('nextCardProbs').innerHTML = probsHtml;
+    }
+
+    // Rendering dei Posti e Calcolo Matematico (Supporta Split)
+    for (let s in seatsState) {
+        let rawHand = seatsState[s];
+        
+        if (rawHand.length === 0) {
+            document.getElementById('c-' + s).innerHTML = "-";
+            continue;
+        }
+
+        let hands = [];
+        let currentH = [];
+        for (let item of rawHand) {
+            if (item === 'SPLIT') {
+                hands.push(currentH);
+                currentH = [];
+            } else {
+                currentH.push(item);
+            }
+        }
+        hands.push(currentH);
+
+        let htmlContent = "";
+        
+        hands.forEach((hand, idx) => {
+            if (idx > 0) {
+                htmlContent += `<div style="border-top: 1px dashed rgba(255,255,255,0.4); margin: 6px 0; width: 100%;"></div>`;
+            }
+            
+            let txt = hand.join(' ');
+            htmlContent += txt === "" ? "-" : txt;
+            
+            if (hand.length > 0) {
+                let score = calculateScore(hand);
+                let bustProb = getBustProbability(score, deck, totalRemaining);
+                
+                let scoreColor = score > 21 ? 'var(--low)' : (score === 21 ? 'var(--hi)' : 'white');
+                htmlContent += `<br><span style="color:${scoreColor}; font-size:13px; font-weight:bold;">Score: ${score}</span>`;
+                
+                if (score > 11 && score < 21) {
+                    let bustColor = bustProb > 50 ? 'var(--low)' : '#e67e22';
+                    htmlContent += `<br><span style="color:${bustColor}; font-size:10px;">Rischio Sballo: ${bustProb.toFixed(1)}%</span>`;
+                }
+            }
+        });
+        
+        document.getElementById('c-' + s).innerHTML = htmlContent;
     }
 
     renderChart();
@@ -464,7 +582,7 @@ function renderChart() {
     keys.forEach(key => {
         let count = deck[key];
         let max = maxDeck[key];
-        let perc = (count / max) * 100;
+        let perc = max > 0 ? (count / max) * 100 : 0;
 
         let col = document.createElement('div');
         col.className = 'bar-col';
@@ -477,7 +595,7 @@ function renderChart() {
     });
 }
 
-// --- CASSA E STORICO PERMANENTI (LOCAL STORAGE) ---
+// --- CASSA E STORICO (LOCAL STORAGE) ---
 function saveSession() {
     let cashIn = parseFloat(document.getElementById('cashIn').value);
     let cashOut = parseFloat(document.getElementById('cashOut').value);
@@ -563,4 +681,3 @@ renderHistory();
 </script>
 </body>
 </html>
-
