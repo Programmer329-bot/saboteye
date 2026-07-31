@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>SabotEye HUD Pro</title>
+    <title>SabotEye Old Money HUD</title>
     <style>
         :root {
-            --bg: #030d05;
-            --surface: #0a1f0e;
-            --surface-alt: #123019;
-            --hi: #00ff66;
-            --low: #ff3333;
-            --neu: #ffcc00;
-            --accent: #00e5ff;
-            --border: #1e4d2b;
+            --bg: #121814;          /* Verde bosco scuro e profondo */
+            --surface: #1b261f;     /* Superficie elegante */
+            --surface-alt: #24332a; /* Superficie secondaria */
+            --hi: #76a084;          /* Verde salvia / lusso */
+            --low: #a85757;         /* Bordeaux attenuato */
+            --neu: #d4af37;         /* Oro antico / Classic Gold */
+            --accent: #f4f1ea;      /* Avorio / Crema */
+            --border: #334438;      /* Bordo raffinato */
         }
 
         * { box-sizing: border-box; }
@@ -21,9 +21,9 @@
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: var(--bg);
-            color: #fff;
+            color: var(--accent);
             margin: 0;
-            padding: 6px;
+            padding: 8px;
             text-align: center;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
@@ -38,8 +38,8 @@
         .hud-top {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 6px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
 
         .hud-card {
@@ -49,7 +49,8 @@
             padding: 8px;
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            color: #b0c4b8;
         }
 
         .hud-card span {
@@ -64,7 +65,7 @@
             width: 100%;
             padding: 4px;
             background: var(--surface-alt);
-            color: #fff;
+            color: var(--accent);
             border: 1px solid var(--border);
             border-radius: 4px;
             font-weight: bold;
@@ -78,17 +79,18 @@
             border-radius: 6px;
             font-weight: 800;
             font-size: 12px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            color: var(--neu);
         }
 
-        /* Stats Micro Grid */
+        /* Micro Grid Ratio */
         .micro-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            margin-bottom: 6px;
+            gap: 8px;
+            margin-bottom: 8px;
         }
 
         .micro-box {
@@ -97,6 +99,7 @@
             padding: 6px;
             border-radius: 6px;
             font-size: 10px;
+            color: #b0c4b8;
         }
 
         .micro-box span {
@@ -105,13 +108,13 @@
             font-weight: 700;
         }
 
-        /* Table Layout (Compact & Fast) */
+        /* Table Layout */
         .table {
-            background: radial-gradient(circle, #0f381d 0%, var(--bg) 100%);
+            background: radial-gradient(circle, #1a2e23 0%, var(--bg) 100%);
             border: 2px solid var(--border);
             border-radius: 12px;
-            padding: 8px;
-            margin-bottom: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
         }
 
         .dealer-row {
@@ -123,16 +126,16 @@
         .p-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 8px;
         }
 
         .seat {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px dashed rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px dashed rgba(212, 175, 55, 0.3);
             border-radius: 6px;
-            padding: 6px 4px;
+            padding: 8px 4px;
             cursor: pointer;
-            min-height: 48px;
+            min-height: 52px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -141,8 +144,9 @@
 
         .seat-name {
             font-size: 10px;
-            color: #aaa;
+            color: #b0c4b8;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .seat-val {
@@ -152,31 +156,33 @@
         }
 
         .selected {
-            border: 2px solid var(--accent) !important;
-            background: rgba(0, 229, 255, 0.1) !important;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+            border: 2px solid var(--neu) !important;
+            background: rgba(212, 175, 55, 0.1) !important;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
         }
 
-        /* Lightning Input Pad (Always ready or contextual) */
+        /* Lightning Input Pad */
         .kb {
             background: var(--surface);
             border: 1px solid var(--border);
-            padding: 8px;
+            padding: 10px;
             border-radius: 8px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             display: none;
         }
 
         .kb-header {
             font-size: 11px;
-            margin-bottom: 6px;
-            color: #ccc;
+            margin-bottom: 8px;
+            color: #b0c4b8;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         .k-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 5px;
+            gap: 6px;
         }
 
         button {
@@ -185,7 +191,7 @@
             font-weight: 800;
             border: none;
             border-radius: 5px;
-            color: #fff;
+            color: var(--accent);
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
@@ -197,8 +203,8 @@
         .action-dock {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-            margin-bottom: 6px;
+            gap: 6px;
+            margin-bottom: 8px;
         }
 
         .btn-act {
@@ -207,38 +213,40 @@
             background: var(--surface-alt);
             border: 1px solid var(--border);
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* Analytics & History Drawer */
+        /* Drawer */
         .drawer {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 8px;
-            padding: 8px;
+            padding: 10px;
             text-align: left;
             font-size: 11px;
         }
 
         .drawer h4 {
-            margin: 0 0 6px 0;
+            margin: 0 0 8px 0;
             text-align: center;
             color: var(--neu);
             font-size: 12px;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .form-row {
             display: flex;
             gap: 6px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .form-row input {
             flex: 1;
-            padding: 4px;
+            padding: 6px;
             background: var(--bg);
             border: 1px solid var(--border);
-            color: #fff;
+            color: var(--accent);
             border-radius: 4px;
             font-size: 12px;
         }
@@ -254,10 +262,11 @@
         .history-item {
             display: flex;
             justify-content: space-between;
-            background: rgba(255,255,255,0.03);
-            padding: 4px 6px;
+            background: rgba(255,255,255,0.02);
+            padding: 5px 8px;
             border-radius: 3px;
             margin-bottom: 3px;
+            border: 1px solid rgba(255,255,255,0.03);
         }
 
         .pos { color: var(--hi); }
@@ -288,7 +297,7 @@
 
     <div class="micro-grid">
         <div class="micro-box" style="border-color: var(--low);">Basse (2-6)<span id="pL" style="color:var(--low)">0%</span></div>
-        <div class="micro-box" style="border-color: #555;">Neutre (7-9)<span id="pN" style="color:#aaa">0%</span></div>
+        <div class="micro-box" style="border-color: #555;">Neutre (7-9)<span id="pN" style="color:#b0c4b8">0%</span></div>
         <div class="micro-box" style="border-color: var(--hi);">Alte (10-A)<span id="pH" style="color:var(--hi)">0%</span></div>
     </div>
 
@@ -310,20 +319,20 @@
     </div>
 
     <div id="kb" class="kb">
-        <div class="kb-header">TARGET: <strong id="lbl" style="color:var(--accent)">-</strong></div>
+        <div class="kb-header">TARGET: <strong id="lbl" style="color:var(--neu)">-</strong></div>
         <div class="k-grid">
             <button style="background:var(--hi)" onclick="addCard('A')">A</button>
             <button style="background:var(--hi)" onclick="addCard('10')">10</button>
-            <button style="background:#e67e22" onclick="addCard('9')">9</button>
-            <button style="background:#e67e22" onclick="addCard('8')">8</button>
-            <button style="background:#e67e22" onclick="addCard('7')">7</button>
+            <button style="background:#5a6e5f" onclick="addCard('9')">9</button>
+            <button style="background:#5a6e5f" onclick="addCard('8')">8</button>
+            <button style="background:#5a6e5f" onclick="addCard('7')">7</button>
             <button style="background:var(--low)" onclick="addCard('6')">6</button>
             <button style="background:var(--low)" onclick="addCard('5')">5</button>
             <button style="background:var(--low)" onclick="addCard('4')">4</button>
             <button style="background:var(--low)" onclick="addCard('3')">3</button>
             <button style="background:var(--low)" onclick="addCard('2')">2</button>
         </div>
-        <button style="background:#8e44ad; width:100%; margin-top:5px; padding:6px; font-size:11px;" onclick="splitHand()">➗ SPLIT MANO</button>
+        <button style="background:#634675; width:100%; margin-top:6px; padding:8px; font-size:11px;" onclick="splitHand()">➗ SPLIT MANO</button>
     </div>
 
     <div class="action-dock">
@@ -338,14 +347,14 @@
         <div class="form-row">
             <input type="number" id="cashIn" placeholder="In (€)">
             <input type="number" id="cashOut" placeholder="Out (€)">
-            <button style="background:#27ae60; padding:4px 10px; font-size:11px;" onclick="saveSession()">Salva</button>
+            <button style="background:#40634c; color:var(--accent); padding:6px 12px; font-size:11px; border:1px solid var(--border);" onclick="saveSession()">Salva</button>
         </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-weight:bold;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-weight:bold;">
             <span>Netto: <span id="netProfitTotal" class="pos">€0.00</span></span>
             <span>ROI: <span id="roiTotal">0.0%</span></span>
         </div>
         <ul id="historyList" class="history-list"></ul>
-        <div style="display:flex; gap:4px; margin-top:4px;">
+        <div style="display:flex; gap:6px; margin-top:6px;">
             <button class="btn-act" style="flex:1;" onclick="exportCSV()">CSV</button>
             <button class="btn-act" style="flex:1;" onclick="clearHistory()">Reset Storico</button>
         </div>
@@ -480,13 +489,13 @@ function updateUI() {
 
         let htmlContent = "";
         hands.forEach((hand, idx) => {
-            if (idx > 0) htmlContent += `<div style="border-top:1px dashed rgba(255,255,255,0.3); margin:3px 0;"></div>`;
+            if (idx > 0) htmlContent += `<div style="border-top:1px dashed rgba(212,175,55,0.3); margin:3px 0;"></div>`;
             let txt = hand.join(' ');
             htmlContent += txt === "" ? "-" : txt;
             if (hand.length > 0) {
                 let score = calculateScore(hand);
                 let bustProb = getBustProbability(score, deck, totalRemaining);
-                let scColor = score > 21 ? 'var(--low)' : (score === 21 ? 'var(--hi)' : '#fff');
+                let scColor = score > 21 ? 'var(--low)' : (score === 21 ? 'var(--hi)' : 'var(--accent)');
                 htmlContent += `<br><span style="color:${scColor}; font-size:11px;">[${score}]</span>`;
                 if (score > 11 && score < 21) {
                     let bColor = bustProb > 50 ? 'var(--low)' : 'var(--neu)';
@@ -504,16 +513,16 @@ function saveSession() {
     if (isNaN(cashIn) || isNaN(cashOut)) return alert("Inserisci i valori.");
     let profit = cashOut - cashIn;
     let dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
-    let history = JSON.parse(localStorage.getItem('sabotHUDHistory') || '[]');
+    let history = JSON.parse(localStorage.getItem('sabotMoneyHistory') || '[]');
     history.push({ date: dateStr, in: cashIn, out: cashOut, profit: profit });
-    localStorage.setItem('sabotHUDHistory', JSON.stringify(history));
+    localStorage.setItem('sabotMoneyHistory', JSON.stringify(history));
     document.getElementById('cashIn').value = '';
     document.getElementById('cashOut').value = '';
     renderHistory();
 }
 
 function renderHistory() {
-    let history = JSON.parse(localStorage.getItem('sabotHUDHistory') || '[]');
+    let history = JSON.parse(localStorage.getItem('sabotMoneyHistory') || '[]');
     let listEl = document.getElementById('historyList');
     listEl.innerHTML = '';
     let netTotal = 0, totalIn = 0;
@@ -536,13 +545,13 @@ function renderHistory() {
 }
 
 function exportCSV() {
-    let history = JSON.parse(localStorage.getItem('sabotHUDHistory') || '[]');
+    let history = JSON.parse(localStorage.getItem('sabotMoneyHistory') || '[]');
     if (history.length === 0) return alert("Nessun dato.");
     let csv = "Data,In,Out,Profit\n";
     history.forEach(r => csv += `${r.date},${r.in},${r.out},${r.profit}\n`);
     let link = document.createElement("a");
     link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
-    link.download = "storico.csv";
+    link.download = "storico_oldmoney.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -550,7 +559,7 @@ function exportCSV() {
 
 function clearHistory() {
     if (confirm("Cancellare storico?")) {
-        localStorage.removeItem('sabotHUDHistory');
+        localStorage.removeItem('sabotMoneyHistory');
         renderHistory();
     }
 }
