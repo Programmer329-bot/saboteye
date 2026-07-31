@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>SabotEye Old Money HUD Pro</title>
+    <title>SabotEye Old Money VIP</title>
     <style>
         :root {
-            --bg: #121814;          /* Verde bosco scuro e profondo */
-            --surface: #1b261f;     /* Superficie elegante */
-            --surface-alt: #24332a; /* Superficie secondaria */
-            --hi: #76a084;          /* Verde salvia / lusso */
-            --low: #a85757;         /* Bordeaux attenuato */
-            --neu: #d4af37;         /* Oro antico / Classic Gold */
-            --accent: #f4f1ea;      /* Avorio / Crema */
-            --border: #334438;      /* Bordo raffinato */
+            --bg: #121814;          
+            --surface: #1b261f;     
+            --surface-alt: #24332a; 
+            --hi: #76a084;          
+            --low: #a85757;         
+            --neu: #d4af37;         
+            --accent: #f4f1ea;      
+            --border: #334438;      
         }
 
         * { box-sizing: border-box; }
@@ -36,23 +36,28 @@
 
         /* Branding / Custom Header */
         .brand-header {
-            font-size: 9px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: center;
-            gap: 8px;
+            align-items: center;
+            gap: 10px;
         }
 
         .brand-gold {
             color: var(--neu);
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .brand-vip {
             color: var(--hi);
-            font-weight: 700;
+            font-weight: 800;
         }
 
         /* Top HUD Bar */
@@ -156,79 +161,27 @@
             background: var(--surface-alt);
             border: 1px solid var(--border);
             border-radius: 4px;
-            padding: 4px;
+            padding: 5px 2px;
             text-align: center;
         }
 
         .matrix-card-val {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
             color: var(--neu);
         }
 
         .matrix-card-prob {
-            font-size: 10px;
-            color: var(--accent);
+            font-size: 11px;
+            color: var(--hi);
+            font-weight: 700;
             display: block;
         }
 
         .matrix-card-count {
-            font-size: 8px;
+            font-size: 9px;
             color: #8fa397;
             display: block;
-        }
-
-        /* Remaining Cards Chart Bars */
-        .deck-chart {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 8px;
-        }
-
-        .chart-title {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #b0c4b8;
-            margin-bottom: 6px;
-        }
-
-        .bars-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            height: 50px;
-            gap: 4px;
-        }
-
-        .bar-col {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100%;
-            justify-content: flex-end;
-        }
-
-        .bar {
-            width: 100%;
-            background: var(--hi);
-            border-radius: 2px 2px 0 0;
-            transition: height 0.3s ease;
-        }
-
-        .bar-lbl {
-            font-size: 9px;
-            margin-top: 3px;
-            color: #b0c4b8;
-        }
-
-        .bar-val {
-            font-size: 8px;
-            color: var(--neu);
-            margin-bottom: 2px;
         }
 
         /* Table Layout */
@@ -401,7 +354,7 @@
 <div class="container">
     <div class="brand-header">
         <span class="brand-gold">Limited Edition for Fabio Fruch</span>
-        <span>•</span>
+        <span style="color:var(--border)">|</span>
         <span class="brand-vip">VIP Account</span>
     </div>
 
@@ -431,13 +384,8 @@
     </div>
 
     <div class="card-matrix">
-        <div class="matrix-title">Probabilità Esatta per Singola Carta</div>
+        <div class="matrix-title">Probabilità Uscita Singola Carta</div>
         <div class="matrix-grid" id="matrixGrid"></div>
-    </div>
-
-    <div class="deck-chart">
-        <div class="chart-title">Distribuzione Grafica Sabot</div>
-        <div class="bars-container" id="chartBars"></div>
     </div>
 
     <div class="table">
@@ -502,7 +450,6 @@
 
 <script>
 let deck = {};
-let maxDeck = {};
 let currentSeat = null;
 let seatsState = { dealer: [], p1: [], p2: [], p3: [], p4: [], p5: [], p6: [] };
 
@@ -517,7 +464,6 @@ function resetSabot() {
         '2': 4*numDecks, '3': 4*numDecks, '4': 4*numDecks, '5': 4*numDecks, '6': 4*numDecks,
         '7': 4*numDecks, '8': 4*numDecks, '9': 4*numDecks, '10': 16*numDecks, 'A': 4*numDecks
     };
-    maxDeck = JSON.parse(JSON.stringify(deck));
     clearTable();
 }
 
@@ -612,7 +558,6 @@ function updateUI() {
     }
 
     renderMatrix(totalRemaining);
-    renderChart();
 
     for (let s in seatsState) {
         let rawHand = seatsState[s];
@@ -665,27 +610,6 @@ function renderMatrix(totalRemaining) {
             <span class="matrix-card-count">(${count})</span>
         `;
         grid.appendChild(div);
-    });
-}
-
-function renderChart() {
-    let container = document.getElementById('chartBars');
-    container.innerHTML = '';
-    let keys = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'A'];
-
-    keys.forEach(key => {
-        let count = deck[key];
-        let max = maxDeck[key];
-        let perc = max > 0 ? (count / max) * 100 : 0;
-
-        let col = document.createElement('div');
-        col.className = 'bar-col';
-        col.innerHTML = `
-            <div class="bar-val">${count}</div>
-            <div class="bar" style="height: ${perc}%;"></div>
-            <div class="bar-lbl">${key}</div>
-        `;
-        container.appendChild(col);
     });
 }
 
